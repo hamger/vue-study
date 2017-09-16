@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>双向绑定</title>
+</head>
+
+<body>
+    <div id="app">
+        <input type="text" v-model="text">
+        <br> {{text}}
+    </div>
+</body>
+<script src="./dist/js/mine.bundle.js"></script>
+<script>
+let vm = new MVVM({
+    el: 'app',
+    data: {
+        text: 'this is for v-model',
+    },
+})
+</script>
+
+</html>
