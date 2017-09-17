@@ -2,7 +2,8 @@ var path = require('path');
 
 module.exports = {
     entry: {
-        mine:'./src/vue-mine/MVVM.js'
+        mine:'./src/vue-mine/MVVM.js',
+        mine2:'./src/vue-mine2/MVVN.js'
     },
     output: {
         path: path.resolve(__dirname, './dist'),
