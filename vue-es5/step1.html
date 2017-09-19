@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>双向绑定-step1</title>
+</head>
+
+<body>
+    <div id="app">
+        <input type="text" v-model="start">
+        <br> {{start}}
+    </div>
+</body>
+<script type="text/javascript">
+// 劫持节点并转化为文档片段
+function node2Fragment(node, vm) {
+    var flag = document.createDocumentFragment()
+    var child
+    while (child = node.firstChild) { // 编译每个节点，直到 node 下无子节点
+        compile(child, vm)
+        flag.appendChild(child) // appendchild 方法会自动删除 node 的 child 节点（子节点有且仅有一个父节点）
+    }
+    return flag // 返回填充后的文档片段
+}
+
+// 编译节点
+function compile(node, vm) {
+    var reg = /\{\{(.*)\}\}/
+    if (node.nodeType === 1) { // 元素节点
+        var attr = node.attributes
+        for (var i = 0; i < attr.length; i++) {
+            if (attr[i].nodeName == 'v-model') {
+                var name = attr[i].nodeValue.trim()
+                node.value = vm.data[name]
+            }
+        }
+    };
+    if (node.nodeType === 3) { // 文本节点
+        if (reg.test(node.nodeValue)) {
+            var name = RegExp.$1.trim()
+            node.nodeValue = vm.data[name]
+        }
+    }
+}
+
+// 创建Vue对象
+function Vue(options) {
+    this.data = options.data
+    var node = document.getElementById(options.el)
+    var dom = node2Fragment(node, this)
+    // 将 dom 片段添加到目标元素
+    node.appendChild(dom)
+}
+</script>
+<script>
+var vm = new Vue({
+    el: 'app',
+    data: {
+        start: 'hello world'
+    }
+})
+</script>
+
+</html>
