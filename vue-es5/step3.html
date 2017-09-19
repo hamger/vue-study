@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>双向绑定-step2</title>
+</head>
+
+<body>
+    <div id="app">
+        <input type="text" v-model="start">
+        <br> {{start}}
+    </div>
+</body>
+<script type="text/javascript">
+// 劫持节点并转化为文档片段
+function node2Fragment(node, vm) {
+    var flag = document.createDocumentFragment()
+    var child
+    while (child = node.firstChild) { // 编译每个节点，直到 node 下无子节点
+        compile(child, vm)
+        flag.appendChild(child) // appendchild方法会自动删除node对象的child节点
+    }
+    return flag // 返回填充后的文档片段
+}
+
+// 编译节点
+function compile(node, vm) {
+    var reg = /\{\{(.*)\}\}/
+    if (node.nodeType === 1) { // 元素节点
+        var attr = node.attributes
+        for (var i = 0; i < attr.length; i++) {
+            if (attr[i].nodeName == 'v-model') {
+                var name = attr[i].nodeValue.trim()
+                node.addEventListener('input', function(e) {
+                    vm[name] = e.target.value
+                });
+                node.value = vm[name]
+            }
+        }
+    };
+    if (node.nodeType === 3) { // 文本节点
+        if (reg.test(node.nodeValue)) {
+            var name = RegExp.$1.trim()
+            new Watcher(vm, node, name) // 初始化数据并添加订阅者
+        }
+    }
+}
+
+// 遍历 vm.data 的所有属性
+function observe(obj, vm) {
+    Object.keys(obj).forEach(function(key) {
+        defineReactive(vm, key, obj[key])
+    })
+}
+
+// 使用 Object.defineProperty 把这些属性全部转为 getter/setter
+function defineReactive(obj, key, val) {
+    var dep = new Dep() // 实例化一个主题
+    Object.defineProperty(obj, key, {
+        get: function() {
+        	// 添加订阅者到主题对象Dep
+            if (Dep.target) dep.addSub(Dep.target)
+            return val
+        },
+        set: function(newVal) {
+            if (newVal === val) return
+            val = newVal
+            dep.notify() // 发布更新公告
+        }
+    })
+}
+
+// 创建一个主题类
+function Dep() {
+    this.subs = [] // 主题的订阅者
+}
+
+Dep.prototype = {
+    // 添加订阅者
+    addSub: function(sub) {
+        this.subs.push(sub) 
+    },
+    // 发布更新公告
+    notify: function() {
+        this.subs.forEach(function(sub) {
+            sub.update() // 触发对应属性的 setter
+        })
+    }
+}
+
+// 创建一个订阅者类
+function Watcher(vm, node, name) {
+    Dep.target = this // 未订阅标记
+    this.name = name
+    this.node = node
+    this.vm = vm
+    this.update() // 初始化视图，触发对应属性的 getter
+    Dep.target = null // 已订阅标记
+}
+
+Watcher.prototype = {
+	update: function() {
+        this.node.nodeValue = this.vm[this.name] // 触发对应属性的 getter/setter
+    }
+}
+
+// 创建Vue对象
+function Vue(options) {
+    this.data = options.data
+    var node = document.getElementById(options.el)
+    observe(this.data,this) // 将 vm.data 挂载在 vm 上
+    var dom = node2Fragment(node, this)
+    node.appendChild(dom) // 将dom片段添加到目标元素
+}
+</script>
+<script>
+var vm = new Vue({
+    el: 'app',
+    data: {
+        start: 'hello world'
+    }
+})
+</script>
+
+</html>
