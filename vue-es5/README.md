@@ -15,7 +15,7 @@
     <br> {{start}}
 </div>
 ```
-中input的value值和{{start}}变为vm.data.start的值，即将model转化为view。我们需要一个方法，该方法可以实现以上的转化，让v-mode="start"和{{start}}绑定到的data中start的值，代码如下，具体代码和效果见step1.html。
+中`input`的`value`值和`{{start}}`变为`vm.data.start`的值，即将model转化为view。我们需要一个方法，该方法可以实现以上的转化，让`v-mode="start"`和`{{start}}`绑定到的`data.start`的值，代码如下，具体代码和效果见step1.html。
 ```js
 // 劫持节点并转化为文档片段
 function node2Fragment(node, vm) {
@@ -58,7 +58,7 @@ function Vue(options) {
 }
 ```
 ### step2
-第二步需要实现view层向model层的绑定，当用户输入改变input的值(view层)时，反映到data中(model层)并改变对应的值。这里需要用到Object.defineProperty()来设置对象的访问器属性。
+第二步需要实现view层向model层的绑定，当用户输入改变input的值(view层)时，反映到data中(model层)并改变对应的值。这里需要用到`Object.defineProperty()`来设置对象的访问器属性。
 ```js
 // 将vm.data上的数据挂载在vm上
 function observe(obj, vm) {
@@ -91,7 +91,7 @@ function Vue(options) {
     node.appendChild(dom)
 }
 ```
-同时我们也需要修改一下原来的compile函数,将vm.data[name]改为vm.[name]
+同时我们也需要修改一下原来的`compile`函数,将`vm.data[name]`改为`vm.[name]`
 ```js
 function compile(node, vm) {
     var reg = /\{\{(.*)\}\}/
@@ -118,7 +118,7 @@ function compile(node, vm) {
 这样当view层被改动时，相应的model层中对应的数据也会改变，具体代码和效果见step2.html。
 
 ### step3
-现在我们离双向绑定只差最后一步了，也是最重要和最难理解的一步，如何实现当model层中数据改变的时候响应式地改变view层的显示，即当input中改变输入的时候能马上在下方视图得到显示。第一步做的是初始化绑定，现在要完成的是，当用户改变data值，再回过头去改变view层，这里将用到一个设计模式：观察者模式。
+现在我们离双向绑定只差最后一步了，也是最重要和最难理解的一步，如何实现当model层中数据改变的时候响应式地改变view层的显示，即当改变`input`输入的时候能马上在下方视图得到显示。第一步做的是初始化绑定，现在要完成的是，当用户改变data值，再回过头去改变view层，这里将用到一个设计模式：观察者模式。
 观察者模式是程序设计中的一种设计模式，定义了一种一对多的依赖关系，让多个观察者对象同时监听某一个主题对象。这个主题对象在状态上发生变化时，会通知所有观察者对象，让他们能够自动更新自己。下面代码是一个应用观察者模式的简单例子
 ```js
 // 创建一个主题类
@@ -159,47 +159,47 @@ dep.notify()
 ```
 接下来我们要将该模式应用在我们的案例中，添加如下代码
 ```js
+// 创建一个主题类
 function Dep() {
-    this.subs = []; 
+    this.subs = [] // 主题的订阅者
 }
 
 Dep.prototype = {
+    // 添加订阅者
     addSub: function(sub) {
-        this.subs.push(sub);
+        this.subs.push(sub) 
     },
+    // 发布更新公告
     notify: function() {
         this.subs.forEach(function(sub) {
-            sub.update();
+            sub.update() // 触发对应属性的 setter
         })
     }
 }
 
+// 创建一个订阅者类
 function Watcher(vm, node, name) {
-    Dep.target = this; // 未订阅标记
-    this.name = name;
-    this.node = node;
-    this.vm = vm;
-    this.update(); // 订阅者执行一次更新视图
-    Dep.target = null; // 已订阅标记
+    Dep.target = this // 未订阅标记
+    this.name = name
+    this.node = node
+    this.vm = vm
+    this.update() // 初始化视图，触发对应属性的 getter
+    Dep.target = null // 已订阅标记
 }
 
 Watcher.prototype = {
-    update: function() {
-        this.get();
-        this.node.nodeValue = this.value;
-    },
-    get: function() {
-        this.value = this.vm[this.name] // 触发对应属性的getter()
+	update: function() {
+        this.node.nodeValue = this.vm[this.name] // 触发对应属性的 getter/setter
     }
 }
 ```
-还需要修改一下defineReactive函数和compile函数
+还需要修改一下`defineReactive`函数和`compile`函数
 ```js	
 function defineReactive(obj, key, val) {
     var dep = new Dep() // 实例化一个主题
     Object.defineProperty(obj, key, {
         get: function() {
-        	// 添加订阅者到主题对象Dep
+        	// 添加订阅者到主题
             if (Dep.target) dep.addSub(Dep.target)
             return val
         },
@@ -229,8 +229,7 @@ function compile(node, vm) {
     if (node.nodeType === 3) { 
         if (reg.test(node.nodeValue)) {
             var name = RegExp.$1.trim()
-            //初始化数据并触发对应属性的getter()
-            new Watcher(vm, node, name)
+            new Watcher(vm, node, name) // 初始化数据并添加订阅者
         }
     }
 }
