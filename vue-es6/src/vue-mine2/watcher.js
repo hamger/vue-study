@@ -2,9 +2,8 @@ import Dep from './dep'
 
 export default class Watcher {
     constructor(vm, expression, callback) {
-        this.callback = callback;
         this.vm = vm;
-        // watch 的数据属性
+        // 目标数据属性的表达式
         this.expression = expression;
         this.callback = callback;
         // watcher 监听的属性的Id
