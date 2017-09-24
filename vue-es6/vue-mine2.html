@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>双向绑定2</title>
+    <title>Vue源码学习2</title>
     <style type="text/css">
     .red {
         color: red
@@ -46,12 +46,6 @@
         </p>
         <button v-on:click="change">vue无法监听下标改变数组</button>
         <button v-on:click="addItem('1111')">用push给数组增加长度</button>
-        <!--          <p>
-            <h3>v-for</h3>
-            <ul>
-                <li v-for="item in array">{{item}}</li>
-            </ul>
-        </p> -->
     </div>
 </body>
 <script src="./dist/js/mine2.bundle.js"></script>
@@ -61,7 +55,7 @@ let vm = new MVVM({
     data: {
         formodel: 'this is for v-model',
         fortext: 'this is for v-text',
-        forhtml: '<span style="color: #f00;">我是v-html指令的结果</span><span></spam>',
+        forhtml: '<span style="color: #f00;">我是v-html指令的结果</span>',
         red: 'red',
         array: ["sdf", "sdfd"]
     },
