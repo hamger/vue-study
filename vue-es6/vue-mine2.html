@@ -35,7 +35,7 @@
         </p>
         <p>
             <h3>v-class</h3>
-            <p v-class="red">我是v-绑定了red的标签文字</p>
+            <p v-class="red">我是v-绑定了 class 值为 red 的标签文字</p>
             <button v-on:click="changeclass">点击更换颜色</button>
         </p>
         <p>
@@ -44,8 +44,8 @@
                 <li v-for="item in array">{{item}}</li>
             </ul>
         </p>
-        <button v-on:click="change">vue无法监听下标改变数组</button>
-        <button v-on:click="addItem('1111')">用push给数组增加长度</button>
+        <button v-on:click="change">通过索引直接改变第一项 <br>（Vue 无法监听到下标改变数组）</button>
+        <button v-on:click="addItem('Hanger')">使用 push 添加一个新项 <br>（Vue 可以监听到 push/unshift 等操作后的数组）</button>
     </div>
 </body>
 <script src="./dist/js/mine2.bundle.js"></script>
@@ -57,7 +57,8 @@ let vm = new MVVM({
         fortext: 'this is for v-text',
         forhtml: '<span style="color: #f00;">我是v-html指令的结果</span>',
         red: 'red',
-        array: ["sdf", "sdfd"]
+        array: ["Hanger", "Hanger2","Hanger3"],
+        index: 3
     },
     methods: {
         changeclass: function(e) {
@@ -66,7 +67,8 @@ let vm = new MVVM({
             e.target.style.backgroundColor = '#' + rand
         },
         addItem: function(value) {
-            this.array.push(value);
+            this.index++;
+            this.array.push(value + this.index);
             console.log(this.array);
         },
         change: function() {
