@@ -1,6 +1,6 @@
 .DS_Store
 node_modules/
-dest/
+dist/
 .idea/
 test/unit/coverage
 test/e2e/reports
