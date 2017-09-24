@@ -45,7 +45,8 @@ export default class Compiler {
     */
     compileElement(el) {
         let childNodes = el.childNodes,
-            self = this
+            // 这里不加分号会报错
+            self = this;
         // 将子元素转化为数组，遍历之
         [].slice.call(childNodes).forEach(function (node) {
             var text = node.textContent
@@ -95,7 +96,7 @@ export default class Compiler {
                 // 用完指令后移除，防止渲染在 DOM 上
                 node.removeAttribute(attrName)
             }
-        });
+        })
 
         if (lazyComplier === 'for') {
             // 执行 for 循环
@@ -156,7 +157,7 @@ export default class Compiler {
             if (index > lastIndex) {
                 tokens.push({
                     value: text.slice(lastIndex, index)
-                });
+                })
             }
 
             // 获取 {{}} 或者 {{{}}} 中的文本
@@ -169,7 +170,7 @@ export default class Compiler {
                 tag: true,
                 // 标识是否为 HTML 文本
                 html: html 
-            });
+            })
             lastIndex = index + match[0].length
         }
         // 获取 {{}} 或者 {{{}}} 之后的文本
@@ -213,15 +214,15 @@ export default class Compiler {
 // 指令工具函数集合
 const directiveUtil = {
     text: function (node, vm, expression) {
-        this.bind(node, vm, expression, 'text');
+        this.bind(node, vm, expression, 'text')
     },
 
     html: function (node, vm, expression) {
-        this.bind(node, vm, expression, 'html');
+        this.bind(node, vm, expression, 'html')
     },
 
     class: function (node, vm, expression) {
-        this.bind(node, vm, expression, 'class');
+        this.bind(node, vm, expression, 'class')
     },
 
     for: function (node, vm, expression) {
@@ -230,102 +231,102 @@ const directiveUtil = {
             parentNode = node.parentNode,
             startNode = document.createTextNode(''),
             endNode = document.createTextNode(''),
-            range = document.createRange();
+            range = document.createRange()
 
-        parentNode.replaceChild(endNode, node);
-        parentNode.insertBefore(startNode, endNode);
+        parentNode.replaceChild(endNode, node)
+        parentNode.insertBefore(startNode, endNode)
 
-        let value = vm;
+        let value = vm
         arrayName.forEach(function (curVal) {
-            value = value[curVal];
-        });
+            value = value[curVal]
+        })
 
         value.forEach(function (item, index) {
-            let cloneNode = node.cloneNode(true);
-            parentNode.insertBefore(cloneNode, endNode);
-            let forVm = Object.create(vm);
-            forVm.$index = index;
-            forVm[itemName] = item;
-            new Compiler(cloneNode, forVm);
-        });
+            let cloneNode = node.cloneNode(true)
+            parentNode.insertBefore(cloneNode, endNode)
+            let forVm = Object.create(vm)
+            forVm.$index = index
+            forVm[itemName] = item
+            new Compiler(cloneNode, forVm)
+        })
 
         new Watcher(vm, arrayName + ".length", function (newValue, oldValue) {
-            range.setStart(startNode, 0);
-            range.setEnd(endNode, 0);
-            range.deleteContents();
+            range.setStart(startNode, 0)
+            range.setEnd(endNode, 0)
+            range.deleteContents()
             value.forEach((item, index) => {
-                let cloneNode = node.cloneNode(true);
-                parentNode.insertBefore(cloneNode, endNode);
-                let forVm = Object.create(this);
-                forVm.$index = index;
-                forVm[itemName] = item;
-                new Compiler(cloneNode, forVm);
-            });
-        });
+                let cloneNode = node.cloneNode(true)
+                parentNode.insertBefore(cloneNode, endNode)
+                let forVm = Object.create(this)
+                forVm.$index = index
+                forVm[itemName] = item
+                new Compiler(cloneNode, forVm)
+            })
+        })
     },
 
     model: function (node, vm, expression) {
-        this.bind(node, vm, expression, 'model');
+        this.bind(node, vm, expression, 'model')
 
-        let value = this._getVMVal(vm, expression);
+        let value = this._getVMVal(vm, expression)
 
-        let composing = false;
+        let composing = false
 
         node.addEventListener('compositionstart', () => {
-            composing = true;
-        }, false);
+            composing = true
+        }, false)
 
         node.addEventListener('compositionend', event => {
-            composing = false;
+            composing = false
             if (value !== event.target.value) {
-                this._setVMVal(vm, expression, event.target.value);
+                this._setVMVal(vm, expression, event.target.value)
             }
-        }, false);
+        }, false)
 
         node.addEventListener('input', event => {
             if (!composing && value !== event.target.value) {
-                this._setVMVal(vm, expression, event.target.value);
+                this._setVMVal(vm, expression, event.target.value)
             }
-        }, false);
+        }, false)
     },
 
     bind: function (node, vm, expression, directive) {
-        var updaterFn = updater[directive + 'Updater'];
-        let value = this._getVMVal(vm, expression);
-        updaterFn && updaterFn(node, value);
+        var updaterFn = updater[directive + 'Updater']
+        let value = this._getVMVal(vm, expression)
+        updaterFn && updaterFn(node, value)
         // 监听数据并更新数据
         new Watcher(vm, expression, function (newValue, oldValue) {
-            updaterFn && updaterFn(node, newValue, oldValue);
-        });
+            updaterFn && updaterFn(node, newValue, oldValue)
+        })
     },
 
     addEvent: function (node, vm, directive, expression) {
-        let eventType = directive.split(':');
-        let fn = vm.$options.methods && vm.$options.methods[expression];
+        let eventType = directive.split(':')
+        let fn = vm.$options.methods && vm.$options.methods[expression]
 
         if (eventType[1] && typeof fn === 'function') {
-            node.addEventListener(eventType[1], fn.bind(vm), false);
+            node.addEventListener(eventType[1], fn.bind(vm), false)
         } else {
             let match = paramsRE.exec(expression),
                 fnName = expression.replace(match[0], ''),
                 paramNames = match[1].split(','),
-                params = [];
+                params = []
 
-            paramsRE.exec("remove(todo)");
-            fn = vm.$options.methods[fnName];
+            paramsRE.exec("remove(todo)")
+            fn = vm.$options.methods[fnName]
             for (let i = 0; i < paramNames.length; i++) {
                 let name = paramNames[i].trim(),
-                    stringMatch = stringRE.exec(name);
+                    stringMatch = stringRE.exec(name)
                 if (stringMatch) {
-                    params.push(stringMatch[1]);
+                    params.push(stringMatch[1])
                 } else {
-                    params.push(vm[name]);
+                    params.push(vm[name])
                 }
                 
             }
             node.addEventListener(eventType[1], function () {
-                fn.apply(vm, params);
-            }, false);
+                fn.apply(vm, params)
+            }, false)
         }
     },
 
@@ -341,11 +342,11 @@ const directiveUtil = {
             if (value.hasOwnProperty(key)) {
                 // 下次遍历的时候 value 的值也将改变
                 // 正好可以用来获取多层的对象属性值
-                value = value[key]; 
+                value = value[key] 
             } else {
                 throw new Error("can not find the property: " + key)
             }
-        });
+        })
 
         if (typeof value === 'object') {
             return JSON.stringify(value)
@@ -358,9 +359,9 @@ const directiveUtil = {
     变更 vm 上的数据
     */
     _setVMVal: function (vm, expression, value) {
-        expression = expression.trim();
-        let data = vm._data;
-        expression = expression.split('.');
+        expression = expression.trim()
+        let data = vm._data
+        expression = expression.split('.')
         expression.forEach((key, index) => {
             // 当遍历到最后一个属性的时候进行赋值
             if (index == expression.length - 1) {
@@ -369,7 +370,7 @@ const directiveUtil = {
             } else {
                 data = data[key]
             }
-        });
+        })
     }
 }
 
@@ -384,48 +385,48 @@ const updater = {
 
     htmlUpdater: function (node, value) {
         if (node.$parent) {
-            cacheDiv.innerHTML = value;
+            cacheDiv.innerHTML = value
             const childNodes = cacheDiv.childNodes,
-                doms = [];
+                doms = []
             let len = childNodes.length,
-                tempNode;
+                tempNode
             if (node.$oncetime) {
                 while (len--) {
-                    tempNode = childNodes[0];
-                    node.appendChild(tempNode);
-                    doms.push(tempNode);
+                    tempNode = childNodes[0]
+                    node.appendChild(tempNode)
+                    doms.push(tempNode)
                 }
-                node.$doms = doms;
-                node.$oncetime = false;
+                node.$doms = doms
+                node.$oncetime = false
             } else {
-                let newFragment = document.createDocumentFragment();
+                let newFragment = document.createDocumentFragment()
                 while (len--) {
-                    tempNode = childNodes[0];
-                    newFragment.appendChild(tempNode);
-                    doms.push(tempNode);
+                    tempNode = childNodes[0]
+                    newFragment.appendChild(tempNode)
+                    doms.push(tempNode)
                 }
-                node.$parent.insertBefore(newFragment, node.$doms[0]);
+                node.$parent.insertBefore(newFragment, node.$doms[0])
                 node.$doms.forEach(childNode => {
-                    node.$parent.removeChild(childNode);
-                });
-                node.$doms = doms;
+                    node.$parent.removeChild(childNode)
+                })
+                node.$doms = doms
             }
 
         } else {
-            node.innerHTML = typeof value === 'undefined' ? '' : value;
+            node.innerHTML = typeof value === 'undefined' ? '' : value
         }
     },
 
     classUpdater: function (node, value, oldValue) {
-        var nodeNames = node.className;
+        var nodeNames = node.className
         if (oldValue) {
-            nodeNames = nodeNames.replace(oldValue, '').replace(/\s$/, '');
+            nodeNames = nodeNames.replace(oldValue, '').replace(/\s$/, '')
         }
-        var space = nodeNames && value ? ' ' : '';
-        node.className = nodeNames + space + value;
+        var space = nodeNames && value ? ' ' : ''
+        node.className = nodeNames + space + value
     },
 
     modelUpdater: function (node, value) {
-        node.value = typeof value === 'undefined' ? '' : value;
+        node.value = typeof value === 'undefined' ? '' : value
     },
 }
