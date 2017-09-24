@@ -70,7 +70,7 @@ let vm = new MVVM({
             this.array.push(value + index)
         },
         change: function() {
-            this.array[0] = "Hanger0"
+            this.array[0] = this.array[0] + "N"
         }
     }
 })
