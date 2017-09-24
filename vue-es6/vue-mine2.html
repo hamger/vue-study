@@ -57,22 +57,20 @@ let vm = new MVVM({
         fortext: 'this is for v-text',
         forhtml: '<span style="color: #f00;">我是v-html指令的结果</span>',
         red: 'red',
-        array: ["Hanger", "Hanger2","Hanger3"],
-        index: 3
+        array: ["Hanger", "Hanger2","Hanger3"]
     },
     methods: {
         changeclass: function(e) {
-            var rand = Math.round(Math.random() * 1000000);
+            var rand = Math.round(Math.random() * 1000000)
             console.log(e.target.previousSibling.previousSibling)
             e.target.style.backgroundColor = '#' + rand
         },
         addItem: function(value) {
-            this.index++;
-            this.array.push(value + this.index);
-            console.log(this.array);
+            var index = this.array.length + 1
+            this.array.push(value + index)
         },
         change: function() {
-            this.array[0] = "vue无法监听到这次改变"
+            this.array[0] = "Hanger0"
         }
     }
 })
