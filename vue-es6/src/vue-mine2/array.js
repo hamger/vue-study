@@ -1,7 +1,7 @@
 import { def } from './util'
 
 const arrayProto = Array.prototype
-export const arrayMethods = Object.create(arrayProto)
+export const arrayMethods = Object.create(arrayProto);
 
 // 使用 arrayMethods 代理原始的数组方法，使其可遍历
 [
