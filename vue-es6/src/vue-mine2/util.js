@@ -18,21 +18,21 @@ Explain : @func 需要去抖函数
   @immediate 是否立即执行
 */
 export function debounce(func, wait, immediate) {
-  var timeout = null;
+  var timeout = null
   
   return function () {
     var delay = function () {
-      timeout = null;
+      timeout = null
       if (!immediate) {
-        func.apply(this, arguments);
+        func.apply(this, arguments)
       }
     }
-    var callnow = immediate && !timeout;
-    clearTimeout(timeout);
-    timeout = setTimeout(delay ,wait);
-    console.log(callnow);
+    var callnow = immediate && !timeout
+    clearTimeout(timeout)
+    timeout = setTimeout(delay ,wait)
+    console.log(callnow)
     if (callnow) {
-      func.apply(this, arguments);
+      func.apply(this, arguments)
     }
   }
 }
