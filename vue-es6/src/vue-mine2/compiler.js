@@ -1,5 +1,6 @@
 import Watcher from './watcher'
 import observer from './observer'
+import updater from './updater'
 
 // 定义解析含标识符文本的正则
 const tagRE = /\{\{\{(.*?)\}\}\}|\{\{(.*?)\}\}/g,
@@ -372,61 +373,4 @@ const directiveUtil = {
             }
         })
     }
-}
-
-// 创建容器元素
-const cacheDiv = document.createElement('div')
-
-// 更新方法集合
-const updater = {
-    textUpdater: function (node, value) {
-        node.textContent = typeof value === 'undefined' ? '' : value
-    },
-
-    htmlUpdater: function (node, value) {
-        if (node.$parent) {
-            cacheDiv.innerHTML = value
-            const childNodes = cacheDiv.childNodes,
-                doms = []
-            let len = childNodes.length,
-                tempNode
-            if (node.$oncetime) {
-                while (len--) {
-                    tempNode = childNodes[0]
-                    node.appendChild(tempNode)
-                    doms.push(tempNode)
-                }
-                node.$doms = doms
-                node.$oncetime = false
-            } else {
-                let newFragment = document.createDocumentFragment()
-                while (len--) {
-                    tempNode = childNodes[0]
-                    newFragment.appendChild(tempNode)
-                    doms.push(tempNode)
-                }
-                node.$parent.insertBefore(newFragment, node.$doms[0])
-                node.$doms.forEach(childNode => {
-                    node.$parent.removeChild(childNode)
-                })
-                node.$doms = doms
-            }
-
-        } else {
-            node.innerHTML = typeof value === 'undefined' ? '' : value
-        }
-    },
-
-    classUpdater: function (node, value, oldValue) {
-        var nodeNames = node.className
-        if (oldValue) {
-            nodeNames = nodeNames.replace(oldValue, '').replace(/\s$/, '')
-        }
-        var space = nodeNames && value ? ' ' : ''
-        node.className = nodeNames + space + value
-    },
-
-    modelUpdater: function (node, value) {
-        node.value = typeof value === 'undefined' ? '' : value
-    },
 }
