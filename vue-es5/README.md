@@ -1,11 +1,13 @@
 ### 前言
-如何实现一个双向绑定的简单案例，我将分为三步：
+Vue 的一个最明显的特性就是其不太引人注意的响应式系统。数据模型仅仅是普通的 JavaScript 对象，而当你修改它们时，视图会进行更新。
+这是如何做到的呢？下面我将实现一个双向绑定的简单案例，我将分三步来实现：
 
 1. model -> view 初始化
 2. view -> model 绑定
 3. model -> view 绑定
 
-分别对应本目录中的step1.html，step2.html，step3.html。
+学习过程需要结合代码（[源码地址](https://github.com/hamger/vue-study)），
+以上三步分别对应`vue-es5`下的`step1.html`、`step2.html`、`step3.html`。
 
 ### step1
 第一步我们要考虑的应该是如何把
@@ -14,8 +16,16 @@
     <input type="text" v-model="start">
     <br> {{start}}
 </div>
+<script>
+var vm = new Vue({
+    el: 'app',
+    data: {
+        start: 'hello world'
+    }
+})
+</script>
 ```
-中`input`的`value`值和`{{start}}`变为`vm.data.start`的值，即将model转化为view。我们需要一个方法，该方法可以实现以上的转化，让`v-mode="start"`和`{{start}}`绑定到的`data.start`的值，代码如下，具体代码和效果见step1.html。
+中`input`的`value`值和`{{start}}`变为`vm.data.start`的值，即将 model 转化为 view 。我们需要一个方法，该方法可以实现以上的转化，让`v-mode="start"`和`{{start}}`绑定到的`data.start`的值，代码如下，具体代码和效果见step1.html。
 ```js
 // 劫持节点并转化为文档片段
 function node2Fragment(node, vm) {
@@ -96,7 +106,7 @@ function Vue(options) {
 function compile(node, vm) {
     var reg = /\{\{(.*)\}\}/
     if (node.nodeType === 1) {
-        var attr = node.attributes
+        var attr = node.attributes // 获取节点的所有属性
         for (var i = 0; i < attr.length; i++) {
             if (attr[i].nodeName == 'v-model') {
                 var name = attr[i].nodeValue.trim()

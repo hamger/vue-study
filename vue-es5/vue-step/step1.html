@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>MVVM-step1</title>
+</head>
+
+<body>
+    通过 defineReactive 这个函数，实现了对于数据取值和设置的监听
+   <a href="http://blog.acohome.cn/tag/vue/">原文地址</a>
+</body>
+<script>
+let callback = {
+    target: null
+}
+
+let defineReactive = function(object, key, value) {
+    let array = [] // 用于存放回调函数
+    Object.defineProperty(object, key, {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            if (callback.target) {
+                array.push(callback.target)
+            }
+            return value
+        },
+        set: function(newValue) {
+            if (newValue != value) {
+                array.forEach((fun) => fun(newValue, value))
+            }
+            value = newValue
+        }
+    })
+}
+
+let object = {}
+defineReactive(object, 'test', 'test')
+callback.target = function(newValue, oldValue) { console.log('我被添加进去了，新的值是：' + newValue) }
+object.test // 触发get访问器，把依赖添加到数组
+callback.target = null
+object.test = 'test2'
+// 我被添加进去了，新的值是：test2
+callback.target = function(newValue, oldValue) { console.log('添加第二个函数，新的值是：' + newValue) }
+object.test // 触发get访问器，把依赖添加到数组
+callback.target = null
+object.test = 'test3'
+// 我被添加进去了，新的值是：test3
+// 添加第二个函数，新的值是：test3
+</script>
+
+</html>

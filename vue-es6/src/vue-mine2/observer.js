@@ -17,6 +17,7 @@ function copyAugment(target, src, keys) {
 export default function observer(data) {
     if (!data || typeof data !== 'object') {
         return
+        // 确保了一个对象下的 Observer 仅被实例化一次
     } else if (data.hasOwnProperty("__ob__") && data["__ob__"] instanceof Observer) {
         return
     }

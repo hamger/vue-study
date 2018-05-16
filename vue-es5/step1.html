@@ -28,7 +28,8 @@ function node2Fragment(node, vm) {
 function compile(node, vm) {
     var reg = /\{\{(.*)\}\}/
     if (node.nodeType === 1) { // 元素节点
-        var attr = node.attributes
+        var attr = node.attributes;
+        // console.log(attr);
         for (var i = 0; i < attr.length; i++) {
             if (attr[i].nodeName == 'v-model') {
                 var name = attr[i].nodeValue.trim()

@@ -101,7 +101,8 @@ function Watcher(vm, node, name) {
 
 Watcher.prototype = {
 	update: function() {
-        this.node.nodeValue = this.vm[this.name] // 触发对应属性的 getter/setter
+        // 改变节点的值
+        this.node.nodeValue = this.vm[this.name]
     }
 }
 

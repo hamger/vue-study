@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>MVVM-step2</title>
+</head>
+
+<body>
+    通过 Dep 类，实现了依赖的管理
+</body>
+<script>
+/*
+    step2改用一个类存放依赖，这个类（Dep）需要这些功能：存放、添加、删除、执行依赖。
+*/
+let Dep = function(){
+
+    // 实例属性，存放依赖
+    this.subs = []
+    
+    // 添加依赖
+    this.addSub = function(sub){
+        this.subs.push(sub)
+    }
+    
+    // 删除依赖
+    this.removeSub = function(sub){
+        const index = this.subs.indexOf(item)
+        if (index > -1) {
+            this.subs.splice(index, 1)
+        }
+    }
+    
+    // 执行依赖自身的函数
+    this.notify = function(newValue, oldVaule){
+        this.subs.forEach(fnc=>fnc(newValue, oldVaule))
+    }
+}
+
+// 类属性
+Dep.target = null
+
+let defineReactive = function(object, key, value) {
+    let array = [] // 用于存放回调函数
+    let dep = new Dep
+    Object.defineProperty(object, key, {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            if (Dep.target) {
+                dep.addSub(Dep.target)
+            }
+            return value
+        },
+        set: function(newValue) {
+            if (newValue != value) {
+                dep.notify(newValue, value)
+            }
+            value = newValue
+        }
+    })
+}
+
+let object = {}
+defineReactive(object, 'test', 'test')
+Dep.target = function(newValue, oldValue) { console.log('我被添加进去了，新的值是：' + newValue) }
+object.test // 触发get访问器，把依赖添加到数组
+Dep.target = null
+object.test = 'test2'
+// 我被添加进去了，新的值是：test2
+Dep.target = function(newValue, oldValue) { console.log('添加第二个函数，新的值是：' + newValue) }
+object.test // 触发get访问器，把依赖添加到数组
+Dep.target = null
+object.test = 'test3'
+// 我被添加进去了，新的值是：test3
+// 添加第二个函数，新的值是：test3
+</script>
+
+</html>
