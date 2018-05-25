@@ -1,6 +1,6 @@
 import Dep from './Dep'
 
-export function defineReactive(object, key, value) {
+function defineReactive(object, key, value) {
     let dep = new Dep()
     observe(value)
     Object.defineProperty(object, key, {
@@ -22,7 +22,7 @@ export function defineReactive(object, key, value) {
     })
 }
 
-export class Observer {
+class Observer {
 
     constructor(value) {
         this.value = value
@@ -45,9 +45,7 @@ export class Observer {
 }
 
 export function observe (value) {
-    if (typeof value !== 'object') {
-        return
-    }
+    if (typeof value !== 'object') return
     let ob
     if (value.hasOwnProperty('__ob__') && value.__ob__ instanceof Observer) {
         ob = value.__ob__

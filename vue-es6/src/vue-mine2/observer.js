@@ -1,6 +1,5 @@
 import Dep from './dep'
 import { def } from './util'
-// arrayMethods 是代理了数组方法的对象
 import { arrayMethods } from './array'
 
 // 原型继承
